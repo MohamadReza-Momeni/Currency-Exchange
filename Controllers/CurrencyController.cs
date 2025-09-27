@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Currency_Exchange.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Currency_Exchange.Controllers
 {
@@ -8,15 +9,26 @@ namespace Currency_Exchange.Controllers
     public class CurrenciesController : ControllerBase
 
     {
+        private readonly ICurrencyService _currencyService;
+        private readonly ILogger<CurrenciesController> _logger;
+
+        public CurrenciesController(ICurrencyService currencyService, ILogger<CurrenciesController> logger)
+        {
+            _currencyService = currencyService;
+            _logger = logger;
+        }
+
+
         /// <summary>
         /// Health check endpoint
         /// </summary>
         /// <returns>API status</returns>
         [HttpGet("currencies")]
-        public ActionResult<object> Currencies()
+        public async Task<ActionResult<Dictionary<string, string>>> Currencies()
         {
-            //return Ok(new { currencies = new[] { "USD", "EUR", "GBP", "JPY", "AUD" } });
-            return Ok(new { status = "Hi" });
+            var currenciesList = await _currencyService.GetCurrenciesList();
+            return Ok(currenciesList);
+
         }
 
     }
