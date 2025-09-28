@@ -7,7 +7,7 @@ namespace Currency_Exchange.Services
 {
     public interface ICurrencyService
     {
-        Task<FixerCurrenciesMapResponse> GetCurrenciesList();
+        Task<CurrenciesResponse> GetCurrenciesList();
     }
     public class CurrencyService : ICurrencyService
     {
@@ -21,22 +21,40 @@ namespace Currency_Exchange.Services
             _configuration = configuration;
             _apiKey = _configuration["FixerMap:Api Key"] ?? throw new ArgumentNullException("API key is missing");
         }
-        public async Task<FixerCurrenciesMapResponse> GetCurrenciesList()
+        public async Task<CurrenciesResponse> GetCurrenciesList()
         {
-            var url = $"https://data.fixer.io/api/symbols?access_key=0a194f278518d59ff64363cd7e3f9be";
+            var url = $"https://data.fixer.io/api/symbols?access_key={_apiKey}";
             var response = await _httpClient.GetAsync(url);
-            //response.EnsureSuccessStatusCode();
-            //Console.WriteLine(response.Content.ReadAsStringAsync());
+            response.EnsureSuccessStatusCode();
             var responseJson = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(responseJson);l
-            var json = JsonSerializer.Deserialize<FixerCurrenciesMapResponse>(responseJson);
-            if (!json.success)
+            var fixerResponse = JsonSerializer.Deserialize<FixerCurrenciesMapResponse>(responseJson,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (fixerResponse is null || !fixerResponse.success)
             {
                 throw new ExternalApiException(
-                    json.Error?.Info ?? "Unknown Fixer error",
-                    json.Error?.Code);
+                    fixerResponse.Error?.Info ?? "Unknown Fixer error",
+                    fixerResponse.Error?.Code);
             }
-            return json;
+            var currencyItems = fixerResponse.Symbols.Select(s => new CurrencyItem
+            {
+                Code = s.Key,
+                Name = s.Value,
+                Symbol = "", // you can enrich later
+                Country = "", // optional
+                IsActive = true,
+                IsMajor = false
+            }).ToList();
+            var result = new CurrenciesResponse
+            {
+                Currencies = currencyItems,
+                TotalCount = currencyItems.Count,
+                MajorCurrencies = currencyItems.Count(c => c.IsMajor),
+                LastUpdated = DateTime.UtcNow,
+                Success = true
+            };
+
+            return result;
         }
     }
 }

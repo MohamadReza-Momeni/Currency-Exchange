@@ -6,6 +6,29 @@ namespace Currency_Exchange.Models
     {
         
     }
+
+    public class CurrenciesResponse
+    {
+        public List<CurrencyItem> Currencies { get; set; }
+        public int TotalCount { get; set; }
+        public int MajorCurrencies { get; set; }
+        public DateTime LastUpdated { get; set; }
+        public bool Success { get; set; }
+    }
+
+
+
+    public class CurrencyItem
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string Symbol { get; set; }
+        public string Country { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsMajor { get; set; }
+    }
+
+
     public class FixerCurrenciesMapResponse
     {
         [JsonPropertyName("success")]

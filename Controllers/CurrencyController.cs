@@ -26,10 +26,10 @@ namespace Currency_Exchange.Controllers
         /// </summary>
         /// <returns>Currencies list</returns>
         [HttpGet("currencies")]
-        [ProducesResponseType(typeof(FixerCurrenciesMapResponse), 200)]
+        [ProducesResponseType(typeof(CurrenciesResponse), 200)]
 
         [ProducesResponseType(500)]
-        public async Task<ActionResult<Dictionary<string, string>>> Currencies()
+        public async Task<ActionResult<CurrenciesResponse>> Currencies()
         {
             _logger.LogInformation("Fetching currencies list");
             var currenciesList = await _currencyService.GetCurrenciesList();
