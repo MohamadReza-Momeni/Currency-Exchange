@@ -1,4 +1,5 @@
 ﻿using Currency_Exchange.Models;
+using Currency_Exchange.Exceptions;
 //using Newtonsoft.Json;
 using System.Text.Json;
 
@@ -22,23 +23,20 @@ namespace Currency_Exchange.Services
         }
         public async Task<FixerCurrenciesMapResponse> GetCurrenciesList()
         {
-            try {
-                var url = $"https://data.fixer.io/api/symbols?access_key=0a194f278518d59ff64363cd7e3f9bee";
-                var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                var responseJson = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(responseJson);
-                return JsonSerializer.Deserialize<FixerCurrenciesMapResponse>(responseJson);
-            }
-            catch(HttpRequestException ex)
+            var url = $"https://data.fixer.io/api/symbols?access_key=0a194f278518d59ff64363cd7e3f9be";
+            var response = await _httpClient.GetAsync(url);
+            //response.EnsureSuccessStatusCode();
+            //Console.WriteLine(response.Content.ReadAsStringAsync());
+            var responseJson = await response.Content.ReadAsStringAsync();
+            //Console.WriteLine(responseJson);l
+            var json = JsonSerializer.Deserialize<FixerCurrenciesMapResponse>(responseJson);
+            if (!json.success)
             {
-                throw new InvalidOperationException($"Failed to retrieve currencies list", ex);
+                throw new ExternalApiException(
+                    json.Error?.Info ?? "Unknown Fixer error",
+                    json.Error?.Code);
             }
-            catch(JsonException ex)
-            {
-                throw new InvalidOperationException($"Failed to parse currencies list", ex);
-            }
-
+            return json;
         }
     }
 }

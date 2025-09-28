@@ -1,4 +1,6 @@
-﻿using Currency_Exchange.Services;
+﻿using Currency_Exchange.Exceptions;
+using Currency_Exchange.Models;
+using Currency_Exchange.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Currency_Exchange.Controllers
@@ -20,17 +22,21 @@ namespace Currency_Exchange.Controllers
 
 
         /// <summary>
-        /// Health check endpoint
+        /// Get a list of supported currencies
         /// </summary>
-        /// <returns>API status</returns>
+        /// <returns>Currencies list</returns>
         [HttpGet("currencies")]
+        [ProducesResponseType(typeof(FixerCurrenciesMapResponse), 200)]
+
+        [ProducesResponseType(500)]
         public async Task<ActionResult<Dictionary<string, string>>> Currencies()
         {
+            _logger.LogInformation("Fetching currencies list");
             var currenciesList = await _currencyService.GetCurrenciesList();
+            _logger.LogInformation("Fetched currencies list successfully");
             return Ok(currenciesList);
 
         }
-
     }
 
     [ApiController]
