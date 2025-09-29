@@ -36,15 +36,19 @@ namespace Currency_Exchange.Services
                     fixerResponse.Error?.Info ?? "Unknown Fixer error",
                     fixerResponse.Error?.Code);
             }
+
             var currencyItems = fixerResponse.Symbols.Select(s => new CurrencyItem
             {
                 Code = s.Key,
                 Name = s.Value,
-                Symbol = "", // you can enrich later
-                Country = "", // optional
+                Symbol = "",
+                Country = "",
                 IsActive = true,
                 IsMajor = false
             }).ToList();
+
+            currencyItems = CurrencyMetadata.MapToMetadata(currencyItems);
+
             var result = new CurrenciesResponse
             {
                 Currencies = currencyItems,

@@ -27,9 +27,10 @@ namespace Currency_Exchange.Controllers
         /// <returns>Currencies list</returns>
         [HttpGet("currencies")]
         [ProducesResponseType(typeof(CurrenciesResponse), 200)]
-
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<CurrenciesResponse>> Currencies()
+        public async Task<ActionResult<CurrenciesResponse>> GetCurrencies()
         {
             _logger.LogInformation("Fetching currencies list");
             var currenciesList = await _currencyService.GetCurrenciesList();
@@ -37,6 +38,7 @@ namespace Currency_Exchange.Controllers
             return Ok(currenciesList);
 
         }
+
     }
 
     [ApiController]
