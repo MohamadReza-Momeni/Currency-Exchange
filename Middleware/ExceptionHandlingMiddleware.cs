@@ -28,6 +28,7 @@ namespace Currency_Exchange.Middleware
                 {
                     101 => HttpStatusCode.Unauthorized,
                     104 => (HttpStatusCode)429,
+                    105 => (HttpStatusCode)405,
                     _ => HttpStatusCode.BadGateway // 502 for upstream errors
                 }, ex.Message);
             }

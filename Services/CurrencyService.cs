@@ -1,6 +1,5 @@
 ﻿using Currency_Exchange.Models;
 using Currency_Exchange.Exceptions;
-//using Newtonsoft.Json;
 using System.Text.Json;
 
 namespace Currency_Exchange.Services
@@ -8,6 +7,7 @@ namespace Currency_Exchange.Services
     public interface ICurrencyService
     {
         Task<CurrenciesResponse> GetCurrenciesList();
+        Task<ExchangeResponse> GetExchangeResponse(string fromCurrency, string toCurrency, int amount);
     }
     public class CurrencyService : ICurrencyService
     {
@@ -37,28 +37,18 @@ namespace Currency_Exchange.Services
                     fixerResponse.Error?.Code);
             }
 
-            var currencyItems = fixerResponse.Symbols.Select(s => new CurrencyItem
-            {
-                Code = s.Key,
-                Name = s.Value,
-                Symbol = "",
-                Country = "",
-                IsActive = true,
-                IsMajor = false
-            }).ToList();
+            return fixerResponse.ToCurrenciesResponse();
+        }
 
-            currencyItems = CurrencyMetadata.MapToMetadata(currencyItems);
-
-            var result = new CurrenciesResponse
-            {
-                Currencies = currencyItems,
-                TotalCount = currencyItems.Count,
-                MajorCurrencies = currencyItems.Count(c => c.IsMajor),
-                LastUpdated = DateTime.UtcNow,
-                Success = true
-            };
-
-            return result;
+        public async Task<ExchangeResponse> GetExchangeResponse(string fromCurrency, string toCurrency, int amount)
+        {
+            var url = $"https://v6.exchangerate-api.com/v6/19bd0da239a47b55c1750246/pair/{fromCurrency}/{toCurrency}/{amount}";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var exchangeRateApiResponse = JsonSerializer.Deserialize<ExchangeRateApiResponse>(responseJson,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return exchangeRateApiResponse.ToExchangeResponse();
         }
     }
 }

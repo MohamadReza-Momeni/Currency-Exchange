@@ -184,37 +184,6 @@ namespace Currency_Exchange.Models
             ["ZMW"] = new() { Code = "ZMW", Name = "Zambian Kwacha", Symbol = "ZK", Country = "Zambia", IsMajor = false },
             ["ZWL"] = new() { Code = "ZWL", Name = "Zimbabwean Dollar", Symbol = "$", Country = "Zimbabwe", IsMajor = false }
         };
-
-        public static List<CurrencyItem> MapToMetadata(List<CurrencyItem> currencyItems)
-        {
-            var result = new List<CurrencyItem>();
-
-            foreach (var currencyItem in currencyItems)
-            {
-                if (Currencies.ContainsKey(currencyItem.Code))
-                {
-                    var metadata = Currencies[currencyItem.Code];
-
-                    // Create new object with combined data
-                    result.Add(new CurrencyItem
-                    {
-                        Code = metadata.Code,
-                        Name = currencyItem.Name, // Keep API name or use metadata.Name
-                        Symbol = metadata.Symbol,
-                        Country = metadata.Country,
-                        IsMajor = metadata.IsMajor,
-                        IsActive = metadata.IsActive
-                    });
-                }
-                else
-                {
-                    // Keep original if no metadata found
-                    result.Add(currencyItem);
-                }
-            }
-
-            return result;
-        }
        
         
     }

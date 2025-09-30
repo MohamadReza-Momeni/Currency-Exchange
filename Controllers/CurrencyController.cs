@@ -39,6 +39,30 @@ namespace Currency_Exchange.Controllers
 
         }
 
+        [HttpGet("exchange/{fromCurrency}/{toCurrency}/{amount}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ExchangeResponse>> GetExchangeAmount(string fromCurrency, string toCurrency, int amount)
+        {
+            _logger.LogInformation("Fetching currency exchange");
+            var exchangeResponse = await _currencyService.GetExchangeResponse(fromCurrency, toCurrency, amount);
+            return Ok(exchangeResponse);
+        }
+
+        [HttpGet("exchange/{fromCurrency}/{toCurrency}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<ExchangeResponse>> GetExchange(string fromCurrency, string toCurrency)
+        {
+            _logger.LogInformation("Fetching currency exchange");
+            var exchangeResponse = await _currencyService.GetExchangeResponse(fromCurrency, toCurrency, 1);
+            return Ok(exchangeResponse);
+        }
+
     }
 
     [ApiController]
@@ -55,4 +79,8 @@ namespace Currency_Exchange.Controllers
             return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
         }
     }
+
+
+
+
 }
